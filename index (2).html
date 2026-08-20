@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTL India Private Limited — Tropic Division · Compliance & Certification Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+/* ============================= TOKENS ============================= */
+:root{
+  --bg:#F5F6F8;
+  --surface:#FFFFFF;
+  --surface-2:#FAFBFC;
+  --line:#E5E7ED;
+  --ink:#12182B;
+  --ink-soft:#4E5468;
+  --ink-faint:#878DA0;
+  --brand:#0E6B5C;
+  --brand-ink:#0A5347;
+  --brand-tint:#E5F2EF;
+  --gold:#A9782E;
+  --gold-tint:#F6EFE1;
+  --green:#1A8F6B;
+  --green-tint:#E6F5EE;
+  --amber:#B0760F;
+  --amber-tint:#FAF0DC;
+  --red:#BC3730;
+  --red-tint:#FAEAE8;
+  --blue:#2E5FA3;
+  --blue-tint:#E9EFF9;
+  --purple:#764BC4;
+  --purple-tint:#F1ECFB;
+  --grey:#878DA0;
+  --grey-tint:#EEEFF3;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(14,20,40,.04), 0 10px 28px -14px rgba(14,20,40,.12);
+  --shadow-lg:0 16px 44px -16px rgba(14,20,40,.24);
+  --font-display:'Sora', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  font-size:14.5px;
+  letter-spacing:-0.001em;
+}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;letter-spacing:-0.015em;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#D7DAE2;border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ============================= SHELL ============================= */
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh;}
+@media (max-width:960px){.shell{grid-template-columns:1fr;}}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  background:var(--ink);
+  color:#EAEAF3;
+  display:flex;flex-direction:column;
+  padding:22px 14px;
+  position:sticky;top:0;height:100vh;
+  z-index:40;
+}
+@media (max-width:960px){
+  .sidebar{position:fixed;left:-260px;width:240px;transition:left .25s ease;box-shadow:var(--shadow-lg);}
+  .sidebar.open{left:0;}
+}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 22px 10px;}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(155deg,var(--brand),#1E9C84);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:800;color:#fff;font-size:13.5px;
+  flex:none;
+}
+.brand-name{font-family:var(--font-display);font-weight:700;font-size:14.5px;color:#fff;line-height:1.2;}
+.brand-sub{font-size:10.5px;color:#9095AE;letter-spacing:.04em;text-transform:uppercase;}
+
+.nav{flex:1;display:flex;flex-direction:column;gap:2px;margin-top:6px;overflow-y:auto;}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#6F7590;padding:14px 12px 6px;font-weight:600;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:9px;
+  color:#C3C6DA;font-size:13.4px;font-weight:500;
+  transition:background .15s, color .15s;
+  position:relative;
+}
+.nav-item .ic{width:17px;height:17px;flex:none;opacity:.85;}
+.nav-item:hover{background:#2A2F45;color:#fff;}
+.nav-item.active{background:var(--brand);color:#fff;}
+.nav-item .count{
+  margin-left:auto;font-family:var(--font-mono);font-size:11px;
+  background:rgba(255,255,255,.12);padding:1px 7px;border-radius:20px;
+}
+.nav-item.active .count{background:rgba(255,255,255,.25);}
+
+.sidebar-foot{border-top:1px solid #2A2F45;padding-top:14px;margin-top:10px;font-size:11.5px;color:#9095AE;}
+.sync-row{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(22,133,95,.25);flex:none;}
+.dot.warn{background:var(--amber);box-shadow:0 0 0 3px rgba(184,114,12,.22);}
+
+/* ---- Main column ---- */
+.main{min-width:0;}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  background:rgba(246,247,249,.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 28px;
+  display:flex;align-items:center;gap:16px;
+}
+.menu-btn{display:none;background:none;border:1px solid var(--line);border-radius:8px;padding:7px 9px;}
+@media (max-width:960px){.menu-btn{display:flex;}}
+.topbar h1{font-size:19px;font-weight:700;}
+.topbar .subtitle{font-size:12px;color:var(--ink-soft);margin-top:2px;font-weight:500;letter-spacing:.01em;}
+.view-only-pill{
+  display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+  color:var(--brand-ink);background:var(--brand-tint);border:1px solid #CFE6E0;
+  padding:6px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;flex:none;
+}
+.view-only-pill .dot2{width:6px;height:6px;border-radius:50%;background:var(--brand);}
+.search-wrap{
+  margin-left:auto;flex:1;max-width:340px;
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;
+}
+.search-wrap input{border:none;outline:none;background:none;font-size:13px;width:100%;font-family:var(--font-body);color:var(--ink);}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;border:1px solid var(--line);
+  background:var(--surface);display:flex;align-items:center;justify-content:center;
+  position:relative;flex:none;
+}
+.icon-btn .badge{
+  position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;
+  font-size:9.5px;font-weight:700;border-radius:20px;padding:1px 5px;font-family:var(--font-mono);
+}
+.btn-primary{
+  background:var(--brand);color:#fff;border:none;border-radius:10px;
+  padding:9px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;
+  box-shadow:0 6px 16px -6px rgba(61,77,183,.55);
+}
+.btn-primary:hover{background:var(--brand-ink);}
+.avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--brand-tint);color:var(--brand-ink);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;font-family:var(--font-display);
+  flex:none;border:1px solid var(--line);
+}
+
+.content{padding:24px 28px 60px;max-width:1440px;}
+.view{display:none;}
+.view.active{display:block;animation:fadein .28s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* ============================= KPI ROW ============================= */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px;}
+@media (max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+.kpi{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 16px 14px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--brand));}
+.kpi .label{font-size:11px;color:var(--ink-soft);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.kpi .value{font-family:var(--font-display);font-size:28px;font-weight:800;margin-top:6px;line-height:1;}
+.kpi .foot{font-size:11px;color:var(--ink-faint);margin-top:7px;}
+.kpi.k-active{--kc:var(--green);} .kpi.k-expiring{--kc:var(--amber);}
+.kpi.k-expired{--kc:var(--red);} .kpi.k-window{--kc:var(--purple);}
+.kpi.k-followup{--kc:var(--blue);}
+
+/* ============================= PANELS / GRID ============================= */
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
+@media (max-width:1080px){.grid-2{grid-template-columns:1fr;}}
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 18px;border-bottom:1px solid var(--line);
+}
+.panel-head h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.panel-head .tag{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);}
+.panel-body{padding:8px 6px;}
+.panel-body.pad{padding:16px 18px;}
+
+.alert-row{
+  display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:10px;margin:4px 6px;
+  transition:background .15s;
+}
+.alert-row:hover{background:var(--surface-2);}
+.alert-dot{width:9px;height:9px;border-radius:50%;flex:none;}
+.alert-dot.red{background:var(--red);} .alert-dot.amber{background:var(--amber);}
+.alert-dot.purple{background:var(--purple);} .alert-dot.blue{background:var(--blue);}
+.alert-main{flex:1;min-width:0;}
+.alert-title{font-size:12.8px;font-weight:600;color:var(--ink);}
+.alert-sub{font-size:11.3px;color:var(--ink-soft);margin-top:1px;}
+.alert-chip{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--font-mono);flex:none;}
+
+/* ============================= STATUS BADGES ============================= */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+  padding:4px 9px;border-radius:20px;white-space:nowrap;letter-spacing:.01em;
+}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;}
+.b-green{background:var(--green-tint);color:var(--green);} .b-green::before{background:var(--green);}
+.b-amber{background:var(--amber-tint);color:var(--amber);} .b-amber::before{background:var(--amber);}
+.b-red{background:var(--red-tint);color:var(--red);} .b-red::before{background:var(--red);}
+.b-blue{background:var(--blue-tint);color:var(--blue);} .b-blue::before{background:var(--blue);}
+.b-purple{background:var(--purple-tint);color:var(--purple);} .b-purple::before{background:var(--purple);}
+.b-grey{background:var(--grey-tint);color:var(--grey);} .b-grey::before{background:var(--grey);}
+
+.priority{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;font-family:var(--font-mono);}
+.p-critical{background:var(--red-tint);color:var(--red);}
+.p-high{background:var(--amber-tint);color:var(--amber);}
+.p-medium{background:var(--blue-tint);color:var(--blue);}
+.p-low{background:var(--grey-tint);color:var(--grey);}
+
+/* ============================= RADAR RING (signature element) ============================= */
+.radar{position:relative;width:46px;height:46px;flex:none;}
+.radar svg{transform:rotate(-90deg);}
+.radar .bg{fill:none;stroke:var(--line);stroke-width:4;}
+.radar .fg{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dasharray .6s ease;}
+.radar .num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--ink);
+}
+
+/* ============================= FILTER BAR ============================= */
+.filter-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px;}
+.chip{
+  padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:600;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
+}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.filter-spacer{flex:1;}
+.select-mini{
+  border:1px solid var(--line);background:var(--surface);border-radius:9px;
+  padding:7px 10px;font-size:12.5px;color:var(--ink-soft);font-family:inherit;
+}
+
+/* ============================= TABLE ============================= */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px;}
+thead th{
+  position:sticky;top:0;background:var(--surface-2);
+  text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--ink-soft);font-weight:700;padding:11px 14px;border-bottom:1px solid var(--line);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+thead th:hover{color:var(--ink);}
+thead th .arrow{opacity:.4;font-size:9px;margin-left:3px;}
+tbody tr{border-bottom:1px solid var(--line);transition:background .12s;cursor:pointer;}
+tbody tr:hover{background:var(--surface-2);}
+tbody td{padding:12px 14px;vertical-align:middle;white-space:nowrap;}
+td.name-cell{white-space:normal;min-width:190px;}
+.cert-name{font-weight:700;font-size:13.2px;}
+.cert-sub{font-size:11px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:2px;}
+.days-left{font-family:var(--font-mono);font-weight:600;}
+.days-left.crit{color:var(--red);}
+.days-left.warn{color:var(--amber);}
+.icon-link{
+  display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--brand);
+  padding:5px 9px;border-radius:7px;border:1px solid var(--brand-tint);background:var(--brand-tint);
+}
+.row-actions{display:flex;gap:6px;}
+
+/* ============================= CATEGORY CARDS ============================= */
+.cat-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+@media (max-width:800px){.cat-summary{grid-template-columns:1fr;}}
+.cat-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s, box-shadow .15s;
+}
+.cat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.cat-card .icon-box{
+  width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;font-size:17px;
+}
+.cat-card h4{font-size:14.5px;margin-bottom:4px;}
+.cat-card .n{font-family:var(--font-display);font-size:22px;font-weight:800;}
+.cat-card .d{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+
+/* ============================= CHARTS ============================= */
+.chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px;}
+@media (max-width:900px){.chart-grid{grid-template-columns:1fr;}}
+.chart-box{height:230px;position:relative;}
+
+/* ============================= MODAL (Certificate Detail) ============================= */
+.overlay{
+  position:fixed;inset:0;background:rgba(20,22,34,.45);backdrop-filter:blur(2px);
+  display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 20px;overflow-y:auto;
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border-radius:18px;max-width:760px;width:100%;
+  box-shadow:var(--shadow-lg);animation:pop .22s ease;
+}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:none;}}
+.modal-head{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+.modal-head h2{font-size:19px;margin-bottom:6px;}
+.modal-close{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--surface);flex:none;font-size:15px;color:var(--ink-soft);}
+.modal-body{padding:22px 26px;max-height:70vh;overflow-y:auto;}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+@media (max-width:640px){.mgrid{grid-template-columns:repeat(2,1fr);}}
+.mfield{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;}
+.mfield .l{font-size:10px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.mfield .v{font-size:13.5px;font-weight:600;margin-top:3px;}
+
+.timeline{display:flex;flex-direction:column;gap:0;margin-bottom:22px;}
+.tl-item{display:flex;gap:14px;position:relative;padding-bottom:20px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{
+  content:'';position:absolute;left:8px;top:20px;bottom:0;width:1px;background:var(--line);
+}
+.tl-item:last-child::before{display:none;}
+.tl-dot{width:17px;height:17px;border-radius:50%;background:var(--brand-tint);border:2px solid var(--brand);flex:none;z-index:1;}
+.tl-dot.done{background:var(--green);border-color:var(--green);}
+.tl-dot.pending{background:var(--surface);border-color:var(--line);}
+.tl-label{font-size:13px;font-weight:600;}
+.tl-date{font-size:11px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:2px;}
+
+.section-title{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:10px;}
+.doc-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;}
+.doc-row .fi{width:32px;height:32px;border-radius:8px;background:var(--brand-tint);color:var(--brand-ink);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none;}
+.mini-table{width:100%;font-size:12.5px;border-collapse:collapse;}
+.mini-table th{text-align:left;font-size:10px;text-transform:uppercase;color:var(--ink-faint);padding:6px 8px;border-bottom:1px solid var(--line);}
+.mini-table td{padding:8px;border-bottom:1px solid var(--line);}
+
+/* ============================= EMPTY STATE ============================= */
+.empty{text-align:center;padding:50px 20px;color:var(--ink-faint);}
+.empty .e-ic{font-size:30px;margin-bottom:10px;}
+
+/* ============================= MISC ============================= */
+.helper-banner{
+  display:flex;align-items:center;gap:10px;background:var(--brand-tint);color:var(--brand-ink);
+  border:1px solid #D6DAF3;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:18px;
+}
+.helper-banner code{background:rgba(61,77,183,.12);padding:1px 6px;border-radius:5px;font-family:var(--font-mono);font-size:11.5px;}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;
+  box-shadow:var(--shadow-lg);z-index:200;display:none;font-weight:500;
+}
+.toast.show{display:block;animation:fadein .2s ease;}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">CT</div>
+      <div>
+        <div class="brand-name">CTL India Pvt. Ltd.</div>
+        <div class="brand-sub">Tropic Division</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="navList">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item active" data-view="dashboard"><span class="ic">◆</span> Dashboard</a>
+      <a class="nav-item" data-view="all"><span class="ic">▤</span> All Certificates <span class="count" id="cnt-all"></span></a>
+
+      <div class="nav-label">Categories</div>
+      <a class="nav-item" data-view="material"><span class="ic">◈</span> Material Audits <span class="count" id="cnt-material"></span></a>
+      <a class="nav-item" data-view="sustainability"><span class="ic">❖</span> Sustainability Audits <span class="count" id="cnt-sustainability"></span></a>
+      <a class="nav-item" data-view="social"><span class="ic">◉</span> Social &amp; Compliance <span class="count" id="cnt-social"></span></a>
+
+      <div class="nav-label">Tracking</div>
+      <a class="nav-item" data-view="renewals"><span class="ic">↻</span> Upcoming Renewals <span class="count" id="cnt-renewals"></span></a>
+      <a class="nav-item" data-view="windows"><span class="ic">▣</span> Audit Windows <span class="count" id="cnt-windows"></span></a>
+      <a class="nav-item" data-view="followups"><span class="ic">✓</span> Follow-Up Tracker <span class="count" id="cnt-followups"></span></a>
+      <a class="nav-item" data-view="expired"><span class="ic">✕</span> Expired Certificates <span class="count" id="cnt-expired"></span></a>
+
+      <div class="nav-label">Records</div>
+      <a class="nav-item" data-view="documents"><span class="ic">▥</span> Documents</a>
+      <a class="nav-item" data-view="reports"><span class="ic">▦</span> Reports &amp; Analytics</a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="sync-row"><span class="dot" id="syncDot"></span> <span id="syncText">Sheets sync active</span></div>
+      <div id="lastUpdated">Last updated —</div>
+      <div id="sheetStatus" style="margin-top:2px;">Connected to Google Sheets</div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #2A2F45;color:#7A8099;">🔒 View-only link · no edit access</div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div>
+        <h1>Compliance &amp; Certification Management</h1>
+        <div class="subtitle">CTL India Private Limited · Tropic Division — Certificate, Audit &amp; Follow-Up Intelligence</div>
+      </div>
+      <div class="search-wrap">
+        <span>⌕</span>
+        <input id="globalSearch" placeholder="Search certificates, standards, people…">
+      </div>
+      <button class="icon-btn" title="Notifications">🔔<span class="badge" id="notifBadge">0</span></button>
+      <button class="icon-btn" id="refreshBtn" title="Refresh from Google Sheets">⟳</button>
+      <div class="view-only-pill" title="This dashboard is a read-only view. Records are maintained in the source Google Sheet."><span class="dot2"></span> View Only</div>
+    </div>
+
+    <div class="content">
+
+      <div class="helper-banner" id="configBanner">
+        <span>ⓘ</span>
+        <span>Showing sample data. Connect the live register in <code>CONFIG.SHEET_API_URL</code> (see <code>Code.gs</code> + setup guide) to display real-time records from Google Sheets. This dashboard is read-only — records are maintained in the source sheet, not here.</span>
+      </div>
+
+      <!-- ============ DASHBOARD VIEW ============ -->
+      <section class="view active" id="view-dashboard">
+        <div class="kpi-row" id="kpiRow"></div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h3>🔴 Critical Actions</h3><span class="tag" id="criticalTag"></span></div>
+            <div class="panel-body" id="criticalList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>📌 Today's Follow-Ups</h3><span class="tag" id="todayTag"></span></div>
+            <div class="panel-body" id="todayList"></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-head"><h3>Certificate Status Analytics</h3></div>
+          <div class="panel-body pad">
+            <div class="chart-grid">
+              <div class="chart-box"><canvas id="chartStatus"></canvas></div>
+              <div class="chart-box"><canvas id="chartCategory"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h3>Upcoming Expiry &amp; Audit Timeline</h3></div>
+            <div class="panel-body pad"><div class="chart-box"><canvas id="chartTimeline"></canvas></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Priority Overview</h3></div>
+            <div class="panel-body pad"><div class="chart-box"><canvas id="chartPriority"></canvas></div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Certificates / Recent Updates</h3></div>
+          <div class="table-wrap"><table id="recentTable"><thead></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ============ ALL CERTIFICATES VIEW ============ -->
+      <section class="view" id="view-all">
+        <div class="filter-bar" id="filterBar-all"></div>
+        <div class="panel">
+          <div class="table-wrap"><table id="table-all"><thead></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ============ CATEGORY VIEWS ============ -->
+      <section class="view" id="view-material"><div id="cat-material-root"></div></section>
+      <section class="view" id="view-sustainability"><div id="cat-sustainability-root"></div></section>
+      <section class="view" id="view-social"><div id="cat-social-root"></div></section>
+
+      <!-- ============ RENEWALS ============ -->
+      <section class="view" id="view-renewals">
+        <div class="filter-bar" id="filterBar-renewals"></div>
+        <div class="panel"><div class="table-wrap"><table id="table-renewals"><thead></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <!-- ============ AUDIT WINDOWS ============ -->
+      <section class="view" id="view-windows">
+        <div class="panel">
+          <div class="panel-head"><h3>Active &amp; Upcoming Audit Windows</h3></div>
+          <div class="panel-body pad" id="windowCards"></div>
+        </div>
+      </section>
+
+      <!-- ============ FOLLOW-UPS ============ -->
+      <section class="view" id="view-followups">
+        <div class="filter-bar" id="filterBar-followups"></div>
+        <div class="panel"><div class="table-wrap"><table id="table-followups"><thead></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <!-- ============ EXPIRED ============ -->
+      <section class="view" id="view-expired">
+        <div class="panel"><div class="table-wrap"><table id="table-expired"><thead></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <!-- ============ DOCUMENTS ============ -->
+      <section class="view" id="view-documents">
+        <div class="panel">
+          <div class="panel-head"><h3>Certificate Documents</h3></div>
+          <div class="panel-body pad" id="docsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;"></div>
+        </div>
+      </section>
+
+      <!-- ============ REPORTS ============ -->
+      <section class="view" id="view-reports">
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-head"><h3>Export &amp; Print</h3></div>
+          <div class="panel-body pad" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn-primary" id="exportCsvBtn">⬇ Export Filtered Records (CSV)</button>
+            <button class="btn-primary" style="background:var(--ink);" id="printBtn">🖶 Print Compliance Report</button>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="panel"><div class="panel-head"><h3>Category Overview</h3></div><div class="panel-body pad"><div class="chart-box"><canvas id="chartCategory2"></canvas></div></div></div>
+          <div class="panel"><div class="panel-head"><h3>Expiry Timeline</h3></div><div class="panel-body pad"><div class="chart-box"><canvas id="chartTimeline2"></canvas></div></div></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= CERTIFICATE DETAIL MODAL ================= -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal" id="modalRoot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   CONFIG — point SHEET_API_URL to your deployed Google Apps Script Web
+   App (see Code.gs). Leave blank to run on embedded demo data.
+   ===================================================================== */
+const CONFIG = {
+  SHEET_API_URL: "https://script.google.com/macros/s/AKfycby6482SyqJaAmBXsFeP1vX2Mjn0mBJGlLv9bFjHRseNxec7ByWS0x_hZK5qlmHk-tfs/exec",
+  EXPIRY_WARNING_DAYS: 30,
+  AUDIT_WINDOW_CLOSING_DAYS: 15,
+  ORG_NAME: "CTL India Private Limited — Tropic Division"
+};
+
+/* =====================================================================
+   DEMO DATA — mirrors the exact `Certificates` sheet schema so swapping
+   in live Google Sheets data requires no shape changes.
+   ===================================================================== */
+const today = new Date("2026-08-20");
+
+function d(days){ const t=new Date(today); t.setDate(t.getDate()+days); return t.toISOString().slice(0,10); }
+
+const DEMO_CERTIFICATES = [
+ {id:"CTL-CERT-001",name:"OEKO-TEX Standard 100",category:"Material",standard:"OEKO-TEX",body:"Hohenstein / OEKO-TEX",facility:"Tropic Plant 1",certNo:"24.HTX.11774",issue:"2025-09-10",expiry:d(24),renewalDue:d(-5),auditStart:d(-10),auditEnd:d(10),auditStatus:"Audit Window Open",status:"Expiring Soon",followUp:d(0),lastFollowUp:d(-14),person:"Compliance Team",priority:"Critical",certFile:"#",suppDoc:"#",remarks:"Renewal sample already dispatched to lab."},
+ {id:"CTL-CERT-002",name:"GOTS Certification",category:"Material",standard:"GOTS",body:"Control Union",facility:"Tropic Plant 2",certNo:"CU1147852-GOTS",issue:"2025-11-01",expiry:d(96),renewalDue:d(70),auditStart:d(60),auditEnd:d(80),auditStatus:"Not Yet Open",status:"Active",followUp:d(45),lastFollowUp:d(-30),person:"Quality Assurance",priority:"Medium",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-003",name:"GRS - Global Recycled Standard",category:"Material",standard:"GRS",body:"Control Union",facility:"Tropic Plant 1",certNo:"CU1102214-GRS",issue:"2025-06-18",expiry:d(-6),renewalDue:d(-40),auditStart:d(-50),auditEnd:d(-6),auditStatus:"Closed",status:"Expired",followUp:d(-2),lastFollowUp:d(-20),person:"Compliance Team",priority:"Critical",certFile:"#",suppDoc:"#",remarks:"Surveillance audit overdue — escalate to management."},
+ {id:"CTL-CERT-004",name:"RCS - Recycled Claim Standard",category:"Material",standard:"RCS",body:"Control Union",facility:"Tropic Plant 2",certNo:"CU1102215-RCS",issue:"2026-01-05",expiry:d(140),renewalDue:d(110),auditStart:d(100),auditEnd:d(120),auditStatus:"Not Yet Open",status:"Active",followUp:d(90),lastFollowUp:d(-60),person:"EHS Officer",priority:"Low",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-005",name:"OCS - Organic Content Standard",category:"Material",standard:"OCS",body:"Control Union",facility:"Tropic Plant 3",certNo:"CU1102216-OCS",issue:"2025-08-22",expiry:d(2),renewalDue:d(-8),auditStart:d(-15),auditEnd:d(2),auditStatus:"Currently Open",status:"Expiring Soon",followUp:d(1),lastFollowUp:d(-7),person:"Compliance Team",priority:"Critical",certFile:"#",suppDoc:"#",remarks:"Renewal documents pending signature."},
+ {id:"CTL-CERT-006",name:"Better Cotton (BCI) Membership",category:"Material",standard:"Better Cotton",body:"Better Cotton Initiative",facility:"Corporate Office",certNo:"BC-IN-3312",issue:"2025-04-01",expiry:d(224),renewalDue:d(200),auditStart:"",auditEnd:"",auditStatus:"Not Applicable",status:"Active",followUp:"",lastFollowUp:"",person:"Sustainability Lead",priority:"Low",certFile:"#",suppDoc:"#",remarks:""},
+
+ {id:"CTL-CERT-007",name:"Higg FEM - Facility Environmental Module",category:"Sustainability",standard:"Higg FEM",body:"SLCP / Higg",facility:"Tropic Plant 2",certNo:"HIGG-FEM-2026-002",issue:"2026-02-14",expiry:d(160),renewalDue:d(140),auditStart:d(120),auditEnd:d(150),auditStatus:"Not Yet Open",status:"Active",followUp:d(100),lastFollowUp:d(-45),person:"Sustainability Lead",priority:"Medium",certFile:"#",suppDoc:"#",remarks:"Rooftop solar performance data attached."},
+ {id:"CTL-CERT-008",name:"ZDHC Wastewater Compliance",category:"Sustainability",standard:"ZDHC",body:"ZDHC Foundation",facility:"Processing Division",certNo:"ZDHC-WW-77120",issue:"2025-10-02",expiry:d(18),renewalDue:d(3),auditStart:d(-5),auditEnd:d(18),auditStatus:"Currently Open",status:"Audit Window Open",followUp:d(0),lastFollowUp:d(-10),person:"EHS Officer",priority:"Critical",certFile:"#",suppDoc:"#",remarks:"Effluent lab report due before window closes."},
+ {id:"CTL-CERT-009",name:"SLCP Facility Assessment",category:"Sustainability",standard:"SLCP",body:"SLCP Verifier",facility:"Tropic Plant 3",certNo:"SLCP-2026-0451",issue:"2026-03-11",expiry:d(205),renewalDue:d(180),auditStart:"",auditEnd:"",auditStatus:"Not Applicable",status:"Active",followUp:d(150),lastFollowUp:"",person:"Quality Assurance",priority:"Low",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-010",name:"Energy & Carbon Assessment",category:"Sustainability",standard:"Carbon Assessment",body:"Internal / Third-Party Verifier",facility:"Tropic Plant 3",certNo:"ECA-2026-014",issue:"2026-01-20",expiry:d(50),renewalDue:d(25),auditStart:d(10),auditEnd:d(40),auditStatus:"Not Yet Open",status:"Renewal in Progress",followUp:d(12),lastFollowUp:d(-18),person:"Sustainability Lead",priority:"Medium",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-011",name:"Customer Sustainability Audit",category:"Sustainability",standard:"Customer Audit",body:"Buyer Compliance Team",facility:"Tropic Plant 1",certNo:"CSA-2026-009",issue:"2026-04-05",expiry:d(300),renewalDue:d(-3),auditStart:"",auditEnd:"",auditStatus:"Not Applicable",status:"Follow-Up Required",followUp:d(-1),lastFollowUp:d(-25),person:"Compliance Team",priority:"High",certFile:"#",suppDoc:"#",remarks:"CAPA closure evidence requested by buyer."},
+
+ {id:"CTL-CERT-012",name:"SMETA 4-Pillar Audit",category:"Social",standard:"SMETA",body:"Sedex / SAI Global",facility:"Tropic Plant 1",certNo:"SMETA-2026-771",issue:"2025-12-01",expiry:d(70),renewalDue:d(40),auditStart:d(20),auditEnd:d(45),auditStatus:"Not Yet Open",status:"Active",followUp:d(15),lastFollowUp:d(-20),person:"Social Compliance",priority:"Medium",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-013",name:"SA8000 Certification",category:"Social",standard:"SA8000",body:"SAAS Accredited Body",facility:"Corporate Office (All Plants)",certNo:"SA8000-IN-2245",issue:"2025-07-15",expiry:d(9),renewalDue:d(-2),auditStart:d(-4),auditEnd:d(9),auditStatus:"Currently Open",status:"Audit Window Open",followUp:d(0),lastFollowUp:d(-3),person:"Social Compliance",priority:"Critical",certFile:"#",suppDoc:"#",remarks:"Management System Manual upgrade in progress — see internal tracker."},
+ {id:"CTL-CERT-014",name:"WRAP Certification",category:"Social",standard:"WRAP",body:"WRAP Inc.",facility:"Tropic Plant 2",certNo:"WRAP-2026-1183",issue:"2026-01-10",expiry:d(125),renewalDue:d(100),auditStart:d(90),auditEnd:d(110),auditStatus:"Not Yet Open",status:"Active",followUp:d(75),lastFollowUp:d(-40),person:"Compliance Team",priority:"Low",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-015",name:"SLCP Social Module",category:"Social",standard:"SLCP",body:"SLCP Verifier",facility:"Tropic Plant 3",certNo:"SLCP-SOC-2026-08",issue:"2026-02-01",expiry:d(190),renewalDue:d(160),auditStart:"",auditEnd:"",auditStatus:"Not Applicable",status:"Completed",followUp:"",lastFollowUp:d(-5),person:"Social Compliance",priority:"Low",certFile:"#",suppDoc:"#",remarks:""},
+ {id:"CTL-CERT-016",name:"amfori BSCI Audit",category:"Social",standard:"BSCI",body:"amfori",facility:"Tropic Plant 2",certNo:"BSCI-2026-3391",issue:"2025-05-19",expiry:d(-30),renewalDue:d(-60),auditStart:d(-70),auditEnd:d(-30),auditStatus:"Closed",status:"Expired",followUp:d(-15),lastFollowUp:d(-45),person:"Compliance Team",priority:"Critical",certFile:"#",suppDoc:"#",remarks:"Re-audit needs to be scheduled with amfori."},
+ {id:"CTL-CERT-017",name:"Health & Safety Compliance Audit (ISO 45001 linked)",category:"Social",standard:"ISO 45001",body:"Internal / Bureau Veritas",facility:"Tropic Plant 2",certNo:"IS45-2026-002",issue:"2026-05-01",expiry:d(255),renewalDue:d(225),auditStart:"",auditEnd:"",auditStatus:"Not Applicable",status:"Active",followUp:d(200),lastFollowUp:"",person:"EHS Officer",priority:"Medium",certFile:"#",suppDoc:"#",remarks:""},
+];
+
+/* =====================================================================
+   DATA LAYER — fetches from Google Sheets (Apps Script Web App) when
+   CONFIG.SHEET_API_URL is set, else falls back to demo data.
+   ===================================================================== */
+let CERTS = [];
+
+async function loadData(){
+  CERTS = [];
+  try{
+    document.getElementById("syncText").textContent = "Syncing live data…";
+    const url = CONFIG.SHEET_API_URL + (CONFIG.SHEET_API_URL.includes("?") ? "&" : "?") + "_=" + Date.now();
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw new Error("API returned " + res.status);
+    const json = await res.json();
+    if(json && json.success === false) throw new Error(json.error || "Google Sheets API error");
+    CERTS = Array.isArray(json && json.data) ? json.data : (Array.isArray(json) ? json : []);
+    document.getElementById("configBanner").style.display = "none";
+    document.getElementById("sheetStatus").textContent = "Live Google Sheets • " + CERTS.length + " records";
+  }catch(e){
+    console.error("Google Sheets fetch failed:", e);
+    CERTS = [];
+    document.getElementById("sheetStatus").textContent = "Connection error: " + e.message;
+    document.getElementById("syncDot").classList.add("warn");
+    document.getElementById("configBanner").style.display = "flex";
+  }
+  document.getElementById("lastUpdated").textContent = "Last checked " + new Date().toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"});
+  enrich();
+  renderAll();
+}
+
+/* ---- derive computed fields per section 16 automatic calculations ---- */
+function daysBetween(a,b){ return Math.round((new Date(a)-new Date(b))/86400000); }
+
+function enrich(){
+  CERTS.forEach(c=>{
+    c.daysToExpiry = c.expiry ? daysBetween(c.expiry, today) : null;
+    c.daysToFollowUp = c.followUp ? daysBetween(c.followUp, today) : null;
+
+    // Audit window state
+    if(c.auditStart && c.auditEnd){
+      const startDiff = daysBetween(c.auditStart, today);
+      const endDiff = daysBetween(c.auditEnd, today);
+      if(endDiff < 0) c.windowState = "Closed";
+      else if(startDiff > 0) c.windowState = "Not Yet Open";
+      else if(endDiff <= CONFIG.AUDIT_WINDOW_CLOSING_DAYS) c.windowState = "Closing Soon";
+      else c.windowState = "Currently Open";
+      c.windowDaysRemaining = endDiff;
+    }else{
+      c.windowState = "Not Applicable";
+      c.windowDaysRemaining = null;
+    }
+
+    // Follow-up state
+    if(c.followUp){
+      if(c.daysToFollowUp < 0) c.followUpState = "Overdue";
+      else if(c.daysToFollowUp === 0) c.followUpState = "Due Today";
+      else c.followUpState = "Upcoming";
+    }else{
+      c.followUpState = "None";
+    }
+
+    // Effective status badge color (Section 5 mapping), respects explicit status but layers computed urgency
+    c.badgeColor = statusColor(c);
+  });
+}
+
+function statusColor(c){
+  if(c.status === "Expired" || (c.daysToExpiry!==null && c.daysToExpiry<0)) return "red";
+  if(c.status === "Audit Window Open" || c.windowState==="Currently Open" || c.windowState==="Closing Soon") return "purple";
+  if(c.status === "Follow-Up Required" || c.followUpState==="Overdue") return "amber";
+  if(c.status === "Renewal in Progress") return "blue";
+  if(c.status === "Expiring Soon" || (c.daysToExpiry!==null && c.daysToExpiry<=CONFIG.EXPIRY_WARNING_DAYS && c.daysToExpiry>=0)) return "amber";
+  if(c.status === "Not Applicable") return "grey";
+  if(c.status === "Completed" || c.status === "Active") return "green";
+  return "grey";
+}
+
+/* =====================================================================
+   RENDER — top level orchestrator
+   ===================================================================== */
+let activeFilter = { all:"All", renewals:"All", followups:"All" };
+let searchTerm = "";
+
+function renderAll(){
+  renderNavCounts();
+  renderKPIs();
+  renderCriticalAndToday();
+  renderCharts();
+  renderRecentTable();
+  renderAllCertsView();
+  ["Material","Sustainability","Social"].forEach(renderCategoryView);
+  renderRenewalsView();
+  renderWindowsView();
+  renderFollowupsView();
+  renderExpiredView();
+  renderDocuments();
+}
+
+function fmtDate(str){
+  if(!str) return "—";
+  return new Date(str).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+
+function badge(color,text){ return `<span class="badge b-${color}">${text}</span>`; }
+function priorityChip(p){
+  const cls = {Critical:"p-critical",High:"p-high",Medium:"p-medium",Low:"p-low"}[p] || "p-low";
+  return `<span class="priority ${cls}">${p||"—"}</span>`;
+}
+
+function radarRing(daysRemaining, max=30){
+  if(daysRemaining===null || daysRemaining===undefined) return "";
+  const pct = Math.max(0,Math.min(1, 1 - daysRemaining/max));
+  const r=18, c=2*Math.PI*r;
+  const color = daysRemaining<0 ? "var(--red)" : daysRemaining<=15 ? "var(--amber)" : "var(--brand)";
+  return `<div class="radar" title="${daysRemaining} days remaining">
+    <svg width="46" height="46" viewBox="0 0 46 46">
+      <circle class="bg" cx="23" cy="23" r="${r}"></circle>
+      <circle class="fg" cx="23" cy="23" r="${r}" stroke="${color}" stroke-dasharray="${c*pct} ${c}"></circle>
+    </svg>
+    <div class="num">${daysRemaining}</div>
+  </div>`;
+}
+
+/* ---------------- KPI ROW ---------------- */
+function renderKPIs(){
+  const total = CERTS.length;
+  const active = CERTS.filter(c=>c.status==="Active"||c.status==="Completed").length;
+  const exp30 = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry>=0 && c.daysToExpiry<=30).length;
+  const exp60 = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry>30 && c.daysToExpiry<=60).length;
+  const exp90 = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry>60 && c.daysToExpiry<=90).length;
+  const expired = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry<0).length;
+  const windowOpen = CERTS.filter(c=>c.windowState==="Currently Open"||c.windowState==="Closing Soon").length;
+  const pendingFollowUp = CERTS.filter(c=>c.followUpState==="Overdue"||c.followUpState==="Due Today").length;
+
+  const cards = [
+    {cls:"",label:"Total Certificates",val:total,foot:"Active + inactive records"},
+    {cls:"k-active",label:"Active Certificates",val:active,foot:"Currently in good standing"},
+    {cls:"k-expiring",label:"Expiring Soon",val:exp30,foot:`${exp60} within 60d · ${exp90} within 90d`},
+    {cls:"k-expired",label:"Expired",val:expired,foot:"Requires immediate renewal"},
+    {cls:"k-window",label:"Audit Window Open",val:windowOpen,foot:"Currently open or closing soon"},
+    {cls:"k-followup",label:"Pending Follow-Up",val:pendingFollowUp,foot:"Due today or overdue"},
+  ];
+  document.getElementById("kpiRow").innerHTML = cards.map(k=>`
+    <div class="kpi ${k.cls}">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.val}</div>
+      <div class="foot">${k.foot}</div>
+    </div>`).join("");
+
+  document.getElementById("notifBadge").textContent = expired + pendingFollowUp;
+  document.getElementById("cnt-all").textContent = total;
+  document.getElementById("cnt-material").textContent = CERTS.filter(c=>c.category==="Material").length;
+  document.getElementById("cnt-sustainability").textContent = CERTS.filter(c=>c.category==="Sustainability").length;
+  document.getElementById("cnt-social").textContent = CERTS.filter(c=>c.category==="Social").length;
+  document.getElementById("cnt-renewals").textContent = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry<=90 && c.daysToExpiry>=0).length;
+  document.getElementById("cnt-windows").textContent = windowOpen;
+  document.getElementById("cnt-followups").textContent = CERTS.filter(c=>c.followUpState==="Overdue"||c.followUpState==="Due Today"||c.followUpState==="Upcoming").length;
+  document.getElementById("cnt-expired").textContent = expired;
+}
+
+/* ---------------- CRITICAL + TODAY ---------------- */
+function renderCriticalAndToday(){
+  const critical = CERTS.filter(c=>
+    c.daysToExpiry<0 ||
+    c.windowState==="Closing Soon" ||
+    (c.daysToExpiry!==null && c.daysToExpiry<=15 && c.daysToExpiry>=0) ||
+    c.followUpState==="Overdue"
+  ).sort((a,b)=>(a.daysToExpiry??999)-(b.daysToExpiry??999));
+
+  document.getElementById("criticalTag").textContent = critical.length + " items";
+  document.getElementById("criticalList").innerHTML = critical.length ? critical.map(c=>{
+    let dotClass="red", chipText="", chipColor="red";
+    if(c.daysToExpiry<0){ chipText="EXPIRED"; }
+    else if(c.windowState==="Closing Soon"){ dotClass="purple"; chipText=`WINDOW ${c.windowDaysRemaining}D`; chipColor="purple"; }
+    else if(c.followUpState==="Overdue"){ dotClass="amber"; chipText="FOLLOW-UP OVERDUE"; chipColor="amber"; }
+    else { dotClass="amber"; chipText=`${c.daysToExpiry}D LEFT`; chipColor="amber"; }
+    return `<div class="alert-row" onclick="openModal('${c.id}')">
+      <span class="alert-dot ${dotClass}"></span>
+      <div class="alert-main"><div class="alert-title">${c.name}</div><div class="alert-sub">${c.facility} · ${c.standard}</div></div>
+      <span class="alert-chip" style="background:var(--${chipColor}-tint);color:var(--${chipColor})">${chipText}</span>
+    </div>`;
+  }).join("") : `<div class="empty">No critical actions right now.</div>`;
+
+  const dueToday = CERTS.filter(c=>c.followUpState==="Due Today");
+  document.getElementById("todayTag").textContent = dueToday.length + " due";
+  document.getElementById("todayList").innerHTML = dueToday.length ? dueToday.map(c=>`
+    <div class="alert-row" onclick="openModal('${c.id}')">
+      <span class="alert-dot blue"></span>
+      <div class="alert-main"><div class="alert-title">${c.name}</div><div class="alert-sub">${c.person} · ${c.facility}</div></div>
+      ${priorityChip(c.priority)}
+    </div>`).join("") : `<div class="empty">No follow-ups due today.</div>`;
+}
+
+/* ---------------- CHARTS ---------------- */
+let chartRefs = {};
+function killChart(key){ if(chartRefs[key]){ chartRefs[key].destroy(); } }
+
+function renderCharts(){
+  const statusCounts = {};
+  CERTS.forEach(c=>{ statusCounts[c.status]=(statusCounts[c.status]||0)+1; });
+  const statusColors = {Active:"#1A8F6B",Completed:"#1A8F6B","Expiring Soon":"#B0760F","Follow-Up Required":"#B0760F",Expired:"#BC3730","Renewal in Progress":"#2E5FA3","Audit Window Open":"#764BC4","Not Applicable":"#878DA0"};
+
+  const catCounts = {Material:0,Sustainability:0,Social:0};
+  CERTS.forEach(c=>catCounts[c.category]=(catCounts[c.category]||0)+1);
+
+  const buckets = {"0-30":0,"31-60":0,"61-90":0,"90+":0};
+  CERTS.forEach(c=>{
+    if(c.daysToExpiry===null) return;
+    if(c.daysToExpiry<0) return;
+    if(c.daysToExpiry<=30) buckets["0-30"]++;
+    else if(c.daysToExpiry<=60) buckets["31-60"]++;
+    else if(c.daysToExpiry<=90) buckets["61-90"]++;
+    else buckets["90+"]++;
+  });
+
+  const prioCounts = {Critical:0,High:0,Medium:0,Low:0};
+  CERTS.forEach(c=>prioCounts[c.priority]=(prioCounts[c.priority]||0)+1);
+
+  const baseOpts = { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{family:"Inter",size:11}}}} };
+
+  ["chartStatus","chartCategory","chartTimeline","chartPriority","chartCategory2","chartTimeline2"].forEach(killChart);
+
+  chartRefs.chartStatus = new Chart(document.getElementById("chartStatus"), {
+    type:"doughnut",
+    data:{labels:Object.keys(statusCounts), datasets:[{data:Object.values(statusCounts), backgroundColor:Object.keys(statusCounts).map(k=>statusColors[k]||"#878DA0"), borderWidth:2, borderColor:"#fff"}]},
+    options:{...baseOpts, cutout:"62%"}
+  });
+  chartRefs.chartCategory = new Chart(document.getElementById("chartCategory"), {
+    type:"bar",
+    data:{labels:Object.keys(catCounts), datasets:[{data:Object.values(catCounts), backgroundColor:["#0E6B5C","#1A8F6B","#764BC4"], borderRadius:6, maxBarThickness:46}]},
+    options:{...baseOpts, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{family:"Inter",size:11}},grid:{color:"#EEF0F3"}},x:{grid:{display:false},ticks:{font:{family:"Inter",size:11}}}}}
+  });
+  const t1 = new Chart(document.getElementById("chartTimeline"), {
+    type:"bar",
+    data:{labels:Object.keys(buckets), datasets:[{data:Object.values(buckets), backgroundColor:"#0E6B5C", borderRadius:6, maxBarThickness:40}]},
+    options:{...baseOpts, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{family:"Inter",size:11}},grid:{color:"#EEF0F3"}},x:{grid:{display:false},ticks:{font:{family:"Inter",size:11}}}}}
+  });
+  chartRefs.chartTimeline = t1;
+  chartRefs.chartPriority = new Chart(document.getElementById("chartPriority"), {
+    type:"doughnut",
+    data:{labels:Object.keys(prioCounts), datasets:[{data:Object.values(prioCounts), backgroundColor:["#BC3730","#B0760F","#2E5FA3","#878DA0"], borderWidth:2, borderColor:"#fff"}]},
+    options:{...baseOpts, cutout:"62%"}
+  });
+  chartRefs.chartCategory2 = new Chart(document.getElementById("chartCategory2"), {
+    type:"bar",
+    data:{labels:Object.keys(catCounts), datasets:[{data:Object.values(catCounts), backgroundColor:["#0E6B5C","#1A8F6B","#764BC4"], borderRadius:6, maxBarThickness:46}]},
+    options:{...baseOpts, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:"#EEF0F3"}},x:{grid:{display:false}}}}
+  });
+  chartRefs.chartTimeline2 = new Chart(document.getElementById("chartTimeline2"), {
+    type:"bar",
+    data:{labels:Object.keys(buckets), datasets:[{data:Object.values(buckets), backgroundColor:"#0E6B5C", borderRadius:6, maxBarThickness:40}]},
+    options:{...baseOpts, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:"#EEF0F3"}},x:{grid:{display:false}}}}
+  });
+}
+
+/* ---------------- TABLE BUILDERS ---------------- */
+const TABLE_COLS = ["Certificate","Category","Standard","Facility","Expiry","Days Left","Audit Window","Status","Priority","Actions"];
+
+function certRowHtml(c){
+  const daysLeftClass = c.daysToExpiry<0 ? "crit" : (c.daysToExpiry<=30 ? "warn" : "");
+  return `<tr onclick="openModal('${c.id}')">
+    <td class="name-cell"><div class="cert-name">${c.name}</div><div class="cert-sub">${c.id} · ${c.certNo}</div></td>
+    <td>${badge(catColor(c.category), c.category)}</td>
+    <td>${c.standard}</td>
+    <td>${c.facility}</td>
+    <td>${fmtDate(c.expiry)}</td>
+    <td class="days-left ${daysLeftClass}">${c.daysToExpiry===null?"—":(c.daysToExpiry<0?`${-c.daysToExpiry}d overdue`:`${c.daysToExpiry}d`)}</td>
+    <td>${windowBadge(c)}</td>
+    <td>${badge(c.badgeColor, c.status)}</td>
+    <td>${priorityChip(c.priority)}</td>
+    <td class="row-actions" onclick="event.stopPropagation()">
+      <a class="icon-link" href="${c.certFile}" target="_blank" onclick="return ${c.certFile==='#'?'false':'true'}">View</a>
+    </td>
+  </tr>`;
+}
+function catColor(cat){ return cat==="Material"?"blue":cat==="Sustainability"?"green":"purple"; }
+function windowBadge(c){
+  if(c.windowState==="Currently Open") return badge("purple","Open");
+  if(c.windowState==="Closing Soon") return badge("purple",`Closing ${c.windowDaysRemaining}d`);
+  if(c.windowState==="Not Yet Open") return badge("grey","Scheduled");
+  if(c.windowState==="Closed") return badge("grey","Closed");
+  return badge("grey","N/A");
+}
+
+function paintTable(tableId, rows){
+  const t = document.getElementById(tableId);
+  t.querySelector("thead").innerHTML = `<tr>${TABLE_COLS.map(c=>`<th>${c}</th>`).join("")}</tr>`;
+  t.querySelector("tbody").innerHTML = rows.length ? rows.map(certRowHtml).join("") : `<tr><td colspan="10"><div class="empty">No records match this filter.</div></td></tr>`;
+}
+
+function applySearch(list){
+  if(!searchTerm) return list;
+  const s = searchTerm.toLowerCase();
+  return list.filter(c=>[c.name,c.standard,c.person,c.body,c.facility,c.status].join(" ").toLowerCase().includes(s));
+}
+
+/* ---- Recent table (dashboard) ---- */
+function renderRecentTable(){
+  const recent = [...CERTS].sort((a,b)=>new Date(b.issue)-new Date(a.issue)).slice(0,6);
+  paintTable("recentTable", applySearch(recent));
+}
+
+/* ---- All certificates view w/ filters ---- */
+const QUICK_FILTERS = ["All","Active","Expiring Soon","Expired","Audit Window Open","Follow-Up Required"];
+function renderAllCertsView(){
+  const bar = document.getElementById("filterBar-all");
+  bar.innerHTML = QUICK_FILTERS.map(f=>`<button class="chip ${activeFilter.all===f?'active':''}" onclick="setFilter('all','${f}')">${f}</button>`).join("")
+    + `<span class="filter-spacer"></span>
+       <select class="select-mini" onchange="setCategoryFilter(this.value)">
+        <option value="">All Categories</option>
+        <option value="Material">Material</option>
+        <option value="Sustainability">Sustainability</option>
+        <option value="Social">Social &amp; Compliance</option>
+       </select>`;
+  let list = filterByQuick(CERTS, activeFilter.all);
+  if(window.__catFilter) list = list.filter(c=>c.category===window.__catFilter);
+  paintTable("table-all", applySearch(list));
+}
+function filterByQuick(list, f){
+  if(f==="All") return list;
+  if(f==="Audit Window Open") return list.filter(c=>c.windowState==="Currently Open"||c.windowState==="Closing Soon");
+  if(f==="Follow-Up Required") return list.filter(c=>c.followUpState==="Overdue"||c.followUpState==="Due Today"||c.status==="Follow-Up Required");
+  return list.filter(c=>c.status===f);
+}
+function setFilter(view,val){ activeFilter[view]=val; renderAllCertsView(); if(view==='renewals') renderRenewalsView(); if(view==='followups') renderFollowupsView(); }
+function setCategoryFilter(val){ window.__catFilter = val || null; renderAllCertsView(); }
+
+/* ---- Category views ---- */
+function renderCategoryView(catName){
+  const key = catName.toLowerCase();
+  const root = document.getElementById(`cat-${key}-root`);
+  const list = CERTS.filter(c=>c.category===catName);
+  const active = list.filter(c=>c.status==="Active"||c.status==="Completed").length;
+  const attention = list.filter(c=>c.badgeColor==="red"||c.badgeColor==="amber"||c.badgeColor==="purple").length;
+  const icon = catName==="Material"?"◈":catName==="Sustainability"?"❖":"◉";
+  const color = catColor(catName);
+
+  root.innerHTML = `
+    <div class="cat-summary">
+      <div class="cat-card"><div class="icon-box" style="background:var(--${color}-tint);color:var(--${color})">${icon}</div><h4>Total ${catName}</h4><div class="n">${list.length}</div><div class="d">Records tracked in this category</div></div>
+      <div class="cat-card"><div class="icon-box" style="background:var(--green-tint);color:var(--green)">✓</div><h4>Active / Completed</h4><div class="n">${active}</div><div class="d">In good standing</div></div>
+      <div class="cat-card"><div class="icon-box" style="background:var(--amber-tint);color:var(--amber)">!</div><h4>Needs Attention</h4><div class="n">${attention}</div><div class="d">Expiring, overdue, or window open</div></div>
+    </div>
+    <div class="filter-bar" id="filterBar-cat-${key}">
+      ${QUICK_FILTERS.map(f=>`<button class="chip ${window['__catQuick_'+key]===f || (!window['__catQuick_'+key] && f==='All') ?'active':''}" onclick="setCatQuickFilter('${key}','${f}')">${f}</button>`).join("")}
+    </div>
+    <div class="panel"><div class="table-wrap"><table id="table-cat-${key}"><thead></thead><tbody></tbody></table></div></div>
+  `;
+  const qf = window['__catQuick_'+key] || "All";
+  paintTable(`table-cat-${key}`, applySearch(filterByQuick(list, qf)));
+}
+function setCatQuickFilter(key,val){ window['__catQuick_'+key]=val; renderCategoryView(key==="material"?"Material":key==="sustainability"?"Sustainability":"Social"); }
+
+/* ---- Renewals ---- */
+function renderRenewalsView(){
+  const bar = document.getElementById("filterBar-renewals");
+  const opts = ["All","Within 30 Days","Within 60 Days","Within 90 Days"];
+  bar.innerHTML = opts.map(f=>`<button class="chip ${activeFilter.renewals===f?'active':''}" onclick="setFilter('renewals','${f}')">${f}</button>`).join("");
+  let list = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry>=0 && c.daysToExpiry<=90);
+  if(activeFilter.renewals==="Within 30 Days") list=list.filter(c=>c.daysToExpiry<=30);
+  if(activeFilter.renewals==="Within 60 Days") list=list.filter(c=>c.daysToExpiry<=60);
+  if(activeFilter.renewals==="Within 90 Days") list=list.filter(c=>c.daysToExpiry<=90);
+  list.sort((a,b)=>a.daysToExpiry-b.daysToExpiry);
+  paintTable("table-renewals", applySearch(list));
+}
+
+/* ---- Audit windows ---- */
+function renderWindowsView(){
+  const list = CERTS.filter(c=>c.windowState==="Currently Open"||c.windowState==="Closing Soon"||c.windowState==="Not Yet Open").sort((a,b)=>(a.windowDaysRemaining??999)-(b.windowDaysRemaining??999));
+  const grid = document.getElementById("windowCards");
+  grid.innerHTML = list.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;">` +
+    list.map(c=>`
+      <div class="panel" style="padding:16px;cursor:pointer;" onclick="openModal('${c.id}')">
+        <div style="display:flex;gap:14px;align-items:center;">
+          ${radarRing(c.windowDaysRemaining)}
+          <div style="flex:1;min-width:0;">
+            <div class="cert-name">${c.name}</div>
+            <div class="cert-sub">${c.facility}</div>
+            <div style="margin-top:8px;">${c.windowState==="Closing Soon"?badge("purple","URGENT — CLOSING SOON"):c.windowState==="Currently Open"?badge("purple","🔔 AUDIT WINDOW OPEN"):badge("grey","Not Yet Open")}</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11.5px;color:var(--ink-soft);display:flex;justify-content:space-between;">
+          <span>${fmtDate(c.auditStart)} → ${fmtDate(c.auditEnd)}</span>
+          <span>${c.person}</span>
+        </div>
+      </div>`).join("") + `</div>` : `<div class="empty">No audit windows currently open or upcoming.</div>`;
+}
+
+/* ---- Follow-ups ---- */
+function renderFollowupsView(){
+  const bar = document.getElementById("filterBar-followups");
+  const opts = ["All","Overdue","Due Today","Upcoming"];
+  bar.innerHTML = opts.map(f=>`<button class="chip ${activeFilter.followups===f?'active':''}" onclick="setFilter('followups','${f}')">${f}</button>`).join("");
+  let list = CERTS.filter(c=>c.followUp);
+  if(activeFilter.followups!=="All") list = list.filter(c=>c.followUpState===activeFilter.followups);
+  list.sort((a,b)=>(a.daysToFollowUp??999)-(b.daysToFollowUp??999));
+
+  const t = document.getElementById("table-followups");
+  const cols = ["Certificate/Audit","Current Status","Last Follow-Up","Next Follow-Up","Responsible","Priority","Remarks"];
+  t.querySelector("thead").innerHTML = `<tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr>`;
+  t.querySelector("tbody").innerHTML = applySearch(list).length ? applySearch(list).map(c=>`
+    <tr onclick="openModal('${c.id}')">
+      <td class="name-cell"><div class="cert-name">${c.name}</div><div class="cert-sub">${c.id}</div></td>
+      <td>${badge(c.badgeColor,c.status)}</td>
+      <td>${fmtDate(c.lastFollowUp)}</td>
+      <td>${fmtDate(c.followUp)} ${c.followUpState==="Overdue"?badge("red","Overdue"):c.followUpState==="Due Today"?badge("amber","Today"):""}</td>
+      <td>${c.person}</td>
+      <td>${priorityChip(c.priority)}</td>
+      <td style="white-space:normal;min-width:180px;color:var(--ink-soft);">${c.remarks||"—"}</td>
+    </tr>`).join("") : `<tr><td colspan="7"><div class="empty">No follow-ups match this filter.</div></td></tr>`;
+}
+
+/* ---- Expired ---- */
+function renderExpiredView(){
+  const list = CERTS.filter(c=>c.daysToExpiry!==null && c.daysToExpiry<0);
+  paintTable("table-expired", applySearch(list));
+}
+
+/* ---- Documents ---- */
+function renderDocuments(){
+  const grid = document.getElementById("docsGrid");
+  grid.innerHTML = CERTS.map(c=>`
+    <div class="panel" style="padding:15px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div class="doc-row .fi" style="width:36px;height:36px;border-radius:9px;background:var(--brand-tint);color:var(--brand-ink);display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;">PDF</div>
+        <div style="min-width:0;">
+          <div class="cert-name" style="font-size:12.8px;">${c.name}</div>
+          <div class="cert-sub">${c.facility}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <a class="icon-link" href="${c.certFile}" target="_blank">View Certificate</a>
+        <a class="icon-link" href="${c.suppDoc}" target="_blank" style="background:var(--surface-2);border-color:var(--line);color:var(--ink-soft);">Open Document</a>
+      </div>
+    </div>`).join("");
+}
+
+/* =====================================================================
+   CERTIFICATE DETAIL MODAL
+   ===================================================================== */
+function openModal(id){
+  const c = CERTS.find(x=>x.id===id);
+  if(!c) return;
+  const steps = [
+    {label:"Certificate Issued", date:c.issue, done:true},
+    {label:"Last Follow-Up", date:c.lastFollowUp, done:!!c.lastFollowUp},
+    {label:"Renewal Started", date:c.renewalDue, done: c.status==="Renewal in Progress" || c.daysToExpiry<0},
+    {label:"Audit Window", date: c.auditStart? `${fmtDate(c.auditStart)} – ${fmtDate(c.auditEnd)}`:"Not applicable", done:c.windowState==="Currently Open"||c.windowState==="Closed"},
+    {label:"Next Follow-Up", date:c.followUp, done:false},
+    {label:"Expiry / Renewal Due", date:c.expiry, done:false},
+  ];
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>${c.name}</h2>
+        <div style="display:flex;gap:8px;align-items:center;">${badge(c.badgeColor,c.status)} <span class="cert-sub">${c.id} · ${c.certNo}</span></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mgrid">
+        <div class="mfield"><div class="l">Category</div><div class="v">${c.category}</div></div>
+        <div class="mfield"><div class="l">Standard</div><div class="v">${c.standard}</div></div>
+        <div class="mfield"><div class="l">Certification Body</div><div class="v">${c.body}</div></div>
+        <div class="mfield"><div class="l">Facility</div><div class="v">${c.facility}</div></div>
+        <div class="mfield"><div class="l">Issue Date</div><div class="v">${fmtDate(c.issue)}</div></div>
+        <div class="mfield"><div class="l">Expiry Date</div><div class="v">${fmtDate(c.expiry)}</div></div>
+        <div class="mfield"><div class="l">Days Remaining</div><div class="v">${c.daysToExpiry===null?"—":c.daysToExpiry}</div></div>
+        <div class="mfield"><div class="l">Responsible Person</div><div class="v">${c.person}</div></div>
+        <div class="mfield"><div class="l">Priority</div><div class="v">${priorityChip(c.priority)}</div></div>
+      </div>
+
+      <div class="section-title">Timeline</div>
+      <div class="timeline">
+        ${steps.map(s=>`<div class="tl-item"><div class="tl-dot ${s.done?'done':'pending'}"></div><div><div class="tl-label">${s.label}</div><div class="tl-date">${typeof s.date==='string' && s.date.includes('–') ? s.date : fmtDate(s.date)}</div></div></div>`).join("")}
+      </div>
+
+      <div class="section-title">Document Preview</div>
+      <div class="doc-row"><div class="fi">PDF</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">${c.name} — Certificate File</div><div class="cert-sub">Stored in Google Drive</div></div><a class="icon-link" href="${c.certFile}" target="_blank">Open</a></div>
+      <div class="doc-row"><div class="fi">DOC</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">Supporting Documents</div><div class="cert-sub">Audit reports, CAPs, evidence</div></div><a class="icon-link" href="${c.suppDoc}" target="_blank">Open</a></div>
+
+      <div class="section-title" style="margin-top:18px;">Follow-Up History</div>
+      <table class="mini-table">
+        <thead><tr><th>Date</th><th>Action Taken</th><th>Person</th><th>Next Follow-Up</th></tr></thead>
+        <tbody>
+          <tr><td>${fmtDate(c.lastFollowUp)}</td><td>${c.remarks || "Status reviewed, no blocking issues."}</td><td>${c.person}</td><td>${fmtDate(c.followUp)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById("modalOverlay").classList.add("open");
+}
+function closeModal(){ document.getElementById("modalOverlay").classList.remove("open"); }
+document.getElementById("modalOverlay").addEventListener("click", e=>{ if(e.target.id==="modalOverlay") closeModal(); });
+
+/* =====================================================================
+   NAVIGATION / SEARCH / MISC UI
+   ===================================================================== */
+document.getElementById("navList").addEventListener("click", e=>{
+  const item = e.target.closest(".nav-item");
+  if(!item) return;
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  item.classList.add("active");
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+item.dataset.view).classList.add("active");
+  if(window.innerWidth<=960) document.getElementById("sidebar").classList.remove("open");
+});
+document.getElementById("menuBtn").addEventListener("click", ()=>document.getElementById("sidebar").classList.toggle("open"));
+document.getElementById("globalSearch").addEventListener("input", e=>{ searchTerm = e.target.value; renderAll(); });
+document.getElementById("refreshBtn").addEventListener("click", ()=>{ loadData(); showToast("Refreshing from Google Sheets…"); });
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.classList.remove("show"), 3200);
+}
+
+document.getElementById("exportCsvBtn").addEventListener("click", ()=>{
+  const headers = Object.keys(CERTS[0]).filter(k=>!k.startsWith("_"));
+  const rows = CERTS.map(c=>headers.map(h=>`"${(c[h]??"").toString().replace(/"/g,'""')}"`).join(","));
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ctl-tropic-certificates-export.csv";
+  a.click();
+});
+document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+/* ---- Init ---- */
+loadData();
+</script>
+<div style="margin:30px 24px 24px;padding:20px 26px;background:#101827;color:#fff;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:18px;font-size:12px">
+<div><strong style="font-size:14px">CTL India Private Limited</strong><br><span style="color:#aab5c5">Compliance &amp; Certification Intelligence Portal</span></div>
+<div style="text-align:right"><span style="font-size:10px;letter-spacing:.14em;color:#e6c26a;font-weight:700">MONITORED &amp; MAINTAINED BY</span><br><strong style="font-size:14px">Krishna J</strong> <span style="color:#aab5c5">| EHS Executive</span></div>
+</div>
+</body>
+</html>
