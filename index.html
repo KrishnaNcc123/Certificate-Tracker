@@ -353,30 +353,6 @@ td.name-cell{white-space:normal;min-width:190px;}
   box-shadow:var(--shadow-lg);z-index:200;display:none;font-weight:500;
 }
 .toast.show{display:block;animation:fadein .2s ease;}
-
-/* ================= EXECUTIVE PREMIUM REDESIGN ================= */
-:root{
-  --ink:#121827;--brand:#2f5d50;--brand-ink:#173c32;--brand-tint:#edf5f1;
-  --page:#f4f6f8;--card:#ffffff;--line:#e3e8ec;--ink-soft:#667085;
-}
-body{background:var(--page);letter-spacing:.005em;}
-.sidebar{background:linear-gradient(180deg,#101827 0%,#172234 100%);padding:26px 16px;}
-.brand{padding:8px 12px 28px}.brand-mark{width:40px;height:40px;border-radius:12px;background:#e6c26a;color:#172234;font-size:14px}
-.brand-name{font-size:14px;letter-spacing:.01em}.brand-sub{color:#aab5c5;font-size:9px}
-.nav-label{padding-top:18px}.nav-item{padding:10px 12px;border-radius:10px}.nav-item.active{background:#2f5d50;box-shadow:0 8px 20px rgba(0,0,0,.16)}
-.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:24px 34px}
-.topbar h1{font-size:24px;letter-spacing:-.035em}.subtitle{margin-top:5px;color:#7b8492}
-.main{background:var(--page)}.content{padding:28px 34px 36px}
-.card,.kpi,.panel{border:1px solid var(--line)!important;box-shadow:0 8px 24px rgba(16,24,39,.045)!important;border-radius:16px!important}
-.kpi{background:var(--card)}.kpi-value{font-size:30px!important;letter-spacing:-.045em}.kpi-label{letter-spacing:.08em}
-.section-title{font-size:11px!important;letter-spacing:.12em!important}
-button,.btn{border-radius:10px!important;font-weight:650!important}
-table{background:#fff;border-radius:14px;overflow:hidden}.table-wrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
-.status{border-radius:999px!important;font-weight:700!important;letter-spacing:.02em}
-.footer-credit{margin-top:30px;padding:20px 24px;background:#121827;color:#d8dee8;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:12px;border:1px solid rgba(255,255,255,.06)}
-.footer-credit strong{color:#fff;font-size:13px}.footer-credit .gold{color:#e6c26a;font-weight:700}
-@media(max-width:760px){.content{padding:20px 14px}.topbar{padding:18px}.footer-credit{display:block}.footer-credit div+div{margin-top:8px}}
-
 </style>
 </head>
 <body>
@@ -387,8 +363,8 @@ table{background:#fff;border-radius:14px;overflow:hidden}.table-wrap{border:1px 
     <div class="brand">
       <div class="brand-mark">CT</div>
       <div>
-        <div class="brand-name">CTL India Private Limited</div>
-        <div class="brand-sub">Compliance Intelligence Portal</div>
+        <div class="brand-name">CTL India Pvt. Ltd.</div>
+        <div class="brand-sub">Tropic Division</div>
       </div>
     </div>
 
@@ -426,8 +402,8 @@ table{background:#fff;border-radius:14px;overflow:hidden}.table-wrap{border:1px 
     <div class="topbar">
       <button class="menu-btn" id="menuBtn">☰</button>
       <div>
-        <h1>Compliance Intelligence Portal</h1>
-        <div class="subtitle">CTL India Private Limited · Tropic Division — Executive Certificate, Audit &amp; Follow-Up Intelligence</div>
+        <h1>Compliance &amp; Certification Management</h1>
+        <div class="subtitle">CTL India Private Limited · Tropic Division — Certificate, Audit &amp; Follow-Up Intelligence</div>
       </div>
       <div class="search-wrap">
         <span>⌕</span>
@@ -565,7 +541,7 @@ table{background:#fff;border-radius:14px;overflow:hidden}.table-wrap{border:1px 
    App (see Code.gs). Leave blank to run on embedded demo data.
    ===================================================================== */
 const CONFIG = {
-  SHEET_API_URL: "", // e.g. "https://script.google.com/macros/s/XXXXX/exec"
+  SHEET_API_URL: "https://script.google.com/macros/s/AKfycby6482SyqJaAmBXsFeP1vX2Mjn0mBJGlLv9bFjHRseNxec7ByWS0x_hZK5qlmHk-tfs/exec",
   EXPIRY_WARNING_DAYS: 30,
   AUDIT_WINDOW_CLOSING_DAYS: 15,
   ORG_NAME: "CTL India Private Limited — Tropic Division"
@@ -608,26 +584,23 @@ const DEMO_CERTIFICATES = [
 let CERTS = [];
 
 async function loadData(){
-  if(CONFIG.SHEET_API_URL){
-    try{
-      document.getElementById("syncText").textContent = "Syncing…";
-      const res = await fetch(CONFIG.SHEET_API_URL + "?sheet=Certificates");
-      const json = await res.json();
-      CERTS = json.data || json;
-      document.getElementById("configBanner").style.display = "none";
-      document.getElementById("sheetStatus").textContent = "Connected to Google Sheets";
-    }catch(e){
-      console.error("Sheets fetch failed, using demo data:", e);
-      CERTS = DEMO_CERTIFICATES;
-      document.getElementById("sheetStatus").textContent = "Sheets unreachable — showing demo data";
-      document.getElementById("syncDot").classList.add("warn");
-    }
-  }else{
-    CERTS = DEMO_CERTIFICATES.map(c=>({...c}));
+  try{
+    if(!CONFIG.SHEET_API_URL) throw new Error("Google Sheets API URL is missing.");
+    const res = await fetch(CONFIG.SHEET_API_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("API request failed: "+res.status);
+    const payload = await res.json();
+    if(!payload || payload.success !== true) throw new Error((payload && payload.error) || "Invalid API response");
+    CERTS = Array.isArray(payload.data) ? payload.data : [];
+    enrich();
+    renderAll();
+    showToast("Live data loaded: "+CERTS.length+" certificate records");
+  }catch(err){
+    CERTS = [];
+    enrich();
+    renderAll();
+    showToast("Google Sheets connection failed: "+err.message);
+    console.error(err);
   }
-  document.getElementById("lastUpdated").textContent = "Last updated " + new Date().toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"});
-  enrich();
-  renderAll();
 }
 
 /* ---- derive computed fields per section 16 automatic calculations ---- */
@@ -1133,9 +1106,19 @@ document.getElementById("printBtn").addEventListener("click", ()=>window.print()
 /* ---- Init ---- */
 loadData();
 </script>
-<div class="footer-credit">
-  <div><strong>CTL India Private Limited</strong><br><span>Compliance & Certification Intelligence Portal</span></div>
-  <div><span class="gold">MONITORED & MAINTAINED BY</span><br><strong>Krishna J · EHS Executive</strong></div>
+
+
+<!-- Executive Ownership Footer -->
+<div class="footer-credit" style="margin:32px 24px 24px;padding:22px 28px;background:#121827;color:#d8dee8;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:20px;border:1px solid rgba(255,255,255,.08);font-family:inherit">
+  <div>
+    <div style="color:#ffffff;font-size:14px;font-weight:700;letter-spacing:.02em">CTL India Private Limited</div>
+    <div style="margin-top:5px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9eabba">Compliance &amp; Certification Intelligence Portal</div>
+  </div>
+  <div style="text-align:right">
+    <div style="color:#e6c26a;font-size:10px;font-weight:700;letter-spacing:.14em">MONITORED &amp; MAINTAINED BY</div>
+    <div style="margin-top:5px;color:#ffffff;font-size:14px;font-weight:700">Krishna J <span style="color:#aeb8c6;font-weight:500">| EHS Executive</span></div>
+  </div>
 </div>
+
 </body>
 </html>
